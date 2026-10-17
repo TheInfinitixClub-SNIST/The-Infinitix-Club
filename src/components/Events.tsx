@@ -5,100 +5,83 @@ import {
   Sparkles,
   ArrowRight,
   X,
-  Users,
-  Award,
-  Clock,
-  Layers,
   MapPin,
   ExternalLink,
+  Tag,
+  Ticket,
+  Clock,
+  ChevronRight,
+  Info,
 } from 'lucide-react';
+import { supabase, ClubEvent, EventCategory } from '../lib/supabase';
 
 import orientationImg from '../assets/images/infinitix_orientation_1792077162224.jpg';
 import workshopImg from '../assets/images/infinitix_workshop_1792077162417.jpg';
 import hackathonImg from '../assets/images/infinitix_hackathon_1792077160334.jpg';
 
-interface EventData {
-  id: string;
-  title: string;
-  date: string;
-  badge: string;
-  summary: string;
-  fullDescription: string;
-  image: string;
-  stats: { label: string; value: string }[];
-  highlights: string[];
-  location: string;
-}
+const FALLBACK_EVENTS: ClubEvent[] = [
+  // Upcoming Events
+  {
+    id: 'up-1',
+    title: 'GenAI & Autonomous Agent Hackfest 2026',
+    category: 'upcoming',
+    event_date: 'November 14-15, 2026',
+    venue: 'Main Campus Auditorium & AI Research Lab',
+    tags: ['GenAI', 'Multi-Agent', 'Hackathon'],
+    cover_image_url: hackathonImg,
+    registration_link: 'https://forms.gle/infinitix-agent-hackfest-2026',
+    description:
+      'A 36-hour flagship hackathon challenging engineering students to architect multimodal AI agents, autonomous tool-use workflows, and real-time enterprise AI solutions with mentorship from leading AI researchers.',
+  },
+  {
+    id: 'up-2',
+    title: 'Deep Learning & Neural Graphics Masterclass',
+    category: 'upcoming',
+    event_date: 'December 05, 2026',
+    venue: 'Block IV Computing Complex, SNIST',
+    tags: ['Deep Learning', 'PyTorch', 'Computer Vision'],
+    cover_image_url: workshopImg,
+    registration_link: 'https://forms.gle/infinitix-neural-masterclass',
+    description:
+      'Intensive hands-on workshop covering NeRFs, 3D Gaussian Splatting, diffusion models, and real-time PyTorch inference optimization on modern GPU clusters.',
+  },
 
-const RECENT_EVENTS: EventData[] = [
+  // Recent Events
   {
-    id: 'orientation',
-    title: 'Club Orientation & Induction',
-    date: 'August 24, 2025',
-    badge: 'Cohort Onboarding',
-    summary:
-      'Onboarding the incoming cohort with live product demos, roadmap presentations, and hands-on club walkthroughs.',
-    fullDescription:
-      'The Infinitix Annual Induction marked the commencement of our academic session. Over 250 freshers gathered at the main campus auditorium for an interactive keynote introducing club initiatives, project roadmaps, and the upcoming competitive hackathon calendar. Senior domain leads demonstrated real-time computer vision models and neural network applications.',
-    image: orientationImg,
-    stats: [
-      { label: 'Attendees', value: '250+' },
-      { label: 'Cohorts Formed', value: '8' },
-      { label: 'Live Demos', value: '4' },
-    ],
-    highlights: [
-      'Welcome address by Faculty Advisor & Department Dean',
-      'Unveiling of the 2025-2026 Technical Roadmaps & Learning Vault',
-      'Interactive live Q&A panel with Infinitix Alumni working at Tier-1 tech firms',
-      'On-the-spot algorithmic puzzle challenges and merchandise giveaways',
-    ],
-    location: 'Auditorium Hall 1, SNIST Campus',
+    id: 'rec-1',
+    title: 'Club Orientation & Induction 2025',
+    category: 'recent',
+    event_date: 'August 24, 2025',
+    venue: 'Auditorium Hall 1, SNIST Campus',
+    tags: ['Cohort Onboarding', 'Keynote', 'Roadmaps'],
+    cover_image_url: orientationImg,
+    registration_link: null,
+    description:
+      'The Infinitix Annual Induction marked the commencement of our academic session. Over 250 freshers gathered at the main campus auditorium for an interactive keynote introducing club initiatives, project roadmaps, and the upcoming competitive hackathon calendar.',
   },
   {
-    id: 'bootcamp',
-    title: 'Machine Learning Bootcamp',
-    date: 'October 12-13, 2025',
-    badge: 'Hands-on Sprint',
-    summary:
-      'Weekend intensive sprint building, tuning, and evaluating predictive models on complex real-world tabular data.',
-    fullDescription:
-      'An immersive 2-day technical bootcamp where students transitioned from raw dataset ingestion to hyperparameter tuning and model deployment. Mentors guided cohorts through real-world Kaggle datasets, addressing common pain points like data leakage, feature engineering for high-cardinality features, and ROC-AUC metric optimization.',
-    image: workshopImg,
-    stats: [
-      { label: 'Participants', value: '180+' },
-      { label: 'Models Trained', value: '75+' },
-      { label: 'Lab Hours', value: '16h' },
-    ],
-    highlights: [
-      'Deep dive into Pandas vectorization, NumPy matrix math, and Scikit-Learn pipelines',
-      'Hands-on feature engineering sprint: target encoding, polynomial features, and PCA',
-      'Ensemble modeling: XGBoost, LightGBM, and Random Forest comparative benchmarking',
-      'Live leaderboards with automated model evaluation scripts',
-    ],
-    location: 'AI Research Computing Lab, Block IV',
+    id: 'rec-2',
+    title: 'Machine Learning Bootcamp: Zero to Kaggle',
+    category: 'recent',
+    event_date: 'October 12-13, 2025',
+    venue: 'AI Research Computing Lab, Block IV',
+    tags: ['Hands-on Sprint', 'Machine Learning', 'Kaggle'],
+    cover_image_url: workshopImg,
+    registration_link: null,
+    description:
+      'An immersive 2-day technical bootcamp where students transitioned from raw dataset ingestion to hyperparameter tuning and model deployment. Mentors guided cohorts through real-world Kaggle datasets and feature engineering pipelines.',
   },
   {
-    id: 'hackathon',
-    title: 'Data Hackathon: CodeSprint',
-    date: 'January 18-19, 2026',
-    badge: '24-Hour Hackathon',
-    summary:
-      'High-energy 24-hour hackathon building full-stack data applications, predictive pipelines, and generative AI prototypes.',
-    fullDescription:
-      'Our flagship annual 24-hour sprint brought together 40+ multidisciplinary teams. Participants solved pressing challenges across Healthcare AI, Smart Campus Analytics, and Financial Fraud Detection. Sponsored by top tech partners, teams presented working prototypes to a panel of corporate data scientists and academic judges.',
-    image: hackathonImg,
-    stats: [
-      { label: 'Hackers', value: '160+' },
-      { label: 'Teams', value: '42' },
-      { label: 'Projects Deployed', value: '38' },
-    ],
-    highlights: [
-      '24 hours of non-stop coding, model training, and prototype architecture',
-      'Midnight mentor check-ins with industry data engineers and ML researchers',
-      'Live deployment judging on cloud containers with automated stress tests',
-      'Exciting cash prize pool and direct internship interview fast-tracks',
-    ],
-    location: 'Central Campus Incubation Center, SNIST',
+    id: 'rec-3',
+    title: 'Data Hackathon: CodeSprint Sprint 2.0',
+    category: 'recent',
+    event_date: 'January 18-19, 2026',
+    venue: 'Central Campus Incubation Center, SNIST',
+    tags: ['24-Hour Hackathon', 'Data Science', 'Prototypes'],
+    cover_image_url: hackathonImg,
+    registration_link: null,
+    description:
+      'Our flagship annual 24-hour sprint brought together 40+ multidisciplinary teams. Participants solved pressing challenges across Healthcare AI, Smart Campus Analytics, and Financial Fraud Detection with live cloud container deployments.',
   },
 ];
 
@@ -107,7 +90,7 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.14,
+      staggerChildren: 0.1,
     },
   },
 };
@@ -115,7 +98,7 @@ const containerVariants = {
 const cardVariants = {
   hidden: {
     opacity: 0,
-    y: 32,
+    y: 30,
     scale: 0.98,
   },
   visible: {
@@ -123,21 +106,74 @@ const cardVariants = {
     y: 0,
     scale: 1,
     transition: {
-      duration: 0.65,
-      ease: [0.16, 1, 0.3, 1],
+      duration: 0.6,
+      ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
     },
   },
 };
 
 export const Events: React.FC = () => {
-  const [selectedEvent, setSelectedEvent] = useState<EventData | null>(null);
+  const [events, setEvents] = useState<ClubEvent[]>([]);
+  const [activeTab, setActiveTab] = useState<'all' | 'upcoming' | 'recent'>('all');
+  const [selectedEvent, setSelectedEvent] = useState<ClubEvent | null>(null);
+  const [isLiveSynced, setIsLiveSynced] = useState<boolean>(false);
 
-  // Close modal on Escape key press
+  const fetchEvents = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.warn('Error fetching events, using fallback dataset:', error.message);
+        setEvents(FALLBACK_EVENTS);
+      } else if (data && data.length > 0) {
+        setEvents(data as ClubEvent[]);
+        setIsLiveSynced(true);
+      } else {
+        setEvents(FALLBACK_EVENTS);
+      }
+    } catch (err) {
+      console.warn('Network error while fetching events:', err);
+      setEvents(FALLBACK_EVENTS);
+    }
+  };
+
+  useEffect(() => {
+    fetchEvents();
+
+    const channel = supabase
+      .channel('events_live')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'events' },
+        () => {
+          fetchEvents();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  // Filter events based on active category tab
+  const upcomingEvents = events.filter((e) => e.category === 'upcoming');
+  const recentEvents = events.filter((e) => e.category === 'recent');
+
+  const displayedEvents =
+    activeTab === 'upcoming'
+      ? upcomingEvents
+      : activeTab === 'recent'
+      ? recentEvents
+      : events;
+
+  // Modal escape key handling
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setSelectedEvent(null);
-      }
+      if (e.key === 'Escape') setSelectedEvent(null);
     };
     if (selectedEvent) {
       document.body.style.overflow = 'hidden';
@@ -154,47 +190,82 @@ export const Events: React.FC = () => {
   return (
     <section id="events" className="relative w-full max-w-7xl mx-auto my-16 sm:my-24 px-4 sm:px-6 lg:px-8">
       {/* Section Header */}
-      <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-        {/* Pill Badge */}
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-950/60 border border-cyan-400/30 text-cyan-300 text-xs font-semibold tracking-widest uppercase mb-4 shadow-[0_0_12px_rgba(0,242,254,0.2)]">
-          <Calendar className="w-3.5 h-3.5 text-cyan-400" />
-          <span>[ PAST INITIATIVES & RECAP ]</span>
-        </div>
-
-        {/* Section Title */}
-        <h2 className="text-3xl sm:text-4xl lg:text-4xl font-extrabold text-white tracking-tight mb-4">
-          Our Recent{' '}
+      <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight">
+          Our Club{' '}
           <span className="bg-gradient-to-r from-[#00f2fe] via-cyan-300 to-[#8a2be2] bg-clip-text text-transparent">
             Events
           </span>
         </h2>
 
-        <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl mx-auto">
-          From intensive weekend bootcamps to overnight hackathons and cohort inductions — explore the energy,
-          milestones, and community triumphs that define the Infinitix journey.
-        </p>
+        {/* Tab Controls */}
+        <div className="flex items-center justify-center gap-2 mt-8 p-1.5 rounded-2xl bg-white/[0.04] border border-white/10 max-w-md mx-auto backdrop-blur-md">
+          <button
+            onClick={() => setActiveTab('all')}
+            className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition-all duration-300 cursor-pointer ${
+              activeTab === 'all'
+                ? 'bg-cyan-500/20 text-cyan-200 border border-cyan-400/40 shadow-[0_0_15px_rgba(0,242,254,0.2)]'
+                : 'text-slate-400 hover:text-white border border-transparent'
+            }`}
+          >
+            All Events ({events.length})
+          </button>
+
+          <button
+            onClick={() => setActiveTab('upcoming')}
+            className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer ${
+              activeTab === 'upcoming'
+                ? 'bg-cyan-500/20 text-cyan-200 border border-cyan-400/40 shadow-[0_0_15px_rgba(0,242,254,0.2)]'
+                : 'text-slate-400 hover:text-white border border-transparent'
+            }`}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+            Upcoming ({upcomingEvents.length})
+          </button>
+
+          <button
+            onClick={() => setActiveTab('recent')}
+            className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition-all duration-300 cursor-pointer ${
+              activeTab === 'recent'
+                ? 'bg-purple-500/20 text-purple-200 border border-purple-400/40 shadow-[0_0_15px_rgba(138,43,226,0.2)]'
+                : 'text-slate-400 hover:text-white border border-transparent'
+            }`}
+          >
+            Recent ({recentEvents.length})
+          </button>
+        </div>
       </div>
 
-      {/* Cinema-Grade 3-Column Event Showcase */}
+      {/* Events Grid */}
       <motion.div
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.2 }}
+        key={activeTab}
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7"
       >
-        {RECENT_EVENTS.map((event) => {
-          return (
-            <EventCard
-              key={event.id}
-              event={event}
-              onSelect={() => setSelectedEvent(event)}
-            />
-          );
-        })}
+        {displayedEvents.map((event) => (
+          <EventCard
+            key={event.id}
+            event={event}
+            onSelect={() => setSelectedEvent(event)}
+          />
+        ))}
       </motion.div>
 
-      {/* Explore Highlights Modal */}
+      {/* Empty state if category has no events */}
+      {displayedEvents.length === 0 && (
+        <div className="text-center py-16 px-4 rounded-3xl bg-white/[0.02] border border-white/10 max-w-lg mx-auto">
+          <Calendar className="w-12 h-12 text-slate-500 mx-auto mb-3" />
+          <h3 className="text-lg font-bold text-white mb-1">No Events Found</h3>
+          <p className="text-xs text-slate-400">
+            Check back soon for new announcements or switch categories above.
+          </p>
+        </div>
+      )}
+
+      {/* Event Details Modal */}
       <AnimatePresence>
         {selectedEvent && (
           <EventModal
@@ -208,12 +279,13 @@ export const Events: React.FC = () => {
 };
 
 interface EventCardProps {
-  event: EventData;
+  event: ClubEvent;
   onSelect: () => void;
 }
 
 const EventCard: React.FC<EventCardProps> = ({ event, onSelect }) => {
   const cardRef = useRef<HTMLDivElement>(null);
+  const isUpcoming = event.category === 'upcoming';
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
@@ -224,12 +296,20 @@ const EventCard: React.FC<EventCardProps> = ({ event, onSelect }) => {
     cardRef.current.style.setProperty('--mouse-y', `${y}px`);
   };
 
+  const imageSrc =
+    event.cover_image_url ||
+    (isUpcoming ? workshopImg : orientationImg);
+
   return (
     <motion.div
       ref={cardRef}
       variants={cardVariants}
       onMouseMove={handleMouseMove}
-      className="group relative flex flex-col rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10 overflow-hidden transition-all duration-300 hover:border-cyan-400/50 hover:-translate-y-2 shadow-[0_8px_32px_rgba(0,0,0,0.36)] hover:shadow-[0_16px_40px_rgba(0,242,254,0.15)]"
+      className={`group relative flex flex-col rounded-2xl bg-white/[0.03] backdrop-blur-xl border overflow-hidden transition-all duration-300 hover:-translate-y-2 shadow-[0_8px_32px_rgba(0,0,0,0.36)] ${
+        isUpcoming
+          ? 'border-cyan-400/30 hover:border-cyan-400/70 hover:shadow-[0_16px_40px_rgba(0,242,254,0.22)]'
+          : 'border-white/10 hover:border-purple-400/50 hover:shadow-[0_16px_40px_rgba(138,43,226,0.18)]'
+      }`}
     >
       {/* Mouse-following Radial Spotlight */}
       <div
@@ -237,50 +317,100 @@ const EventCard: React.FC<EventCardProps> = ({ event, onSelect }) => {
         aria-hidden="true"
       />
 
-      {/* High-Res Cinema-grade Visual Container (aspect-[16/10]) */}
+      {/* Visual Container */}
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-900">
         <img
-          src={event.image}
+          src={imageSrc}
           alt={event.title}
           className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
           loading="lazy"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = orientationImg;
+          }}
         />
 
         {/* Cinematic Gradient Vignette */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#0b0d19] via-[#0b0d19]/40 to-transparent" />
 
-        {/* Date & Cohort Pill Badges floating at top */}
+        {/* Date & Category Badges */}
         <div className="absolute top-3 inset-x-3 flex items-center justify-between gap-2 z-10">
-          <span className="px-3 py-1 rounded-full text-[11px] font-semibold bg-slate-950/80 border border-white/20 text-slate-200 backdrop-blur-md shadow-md flex items-center gap-1.5">
-            <Calendar className="w-3 h-3 text-cyan-400" />
-            <span>{event.date}</span>
-          </span>
+          {event.event_date && (
+            <span className="px-3 py-1 rounded-full text-[11px] font-semibold bg-slate-950/85 border border-white/20 text-slate-200 backdrop-blur-md shadow-md flex items-center gap-1.5">
+              <Calendar className="w-3 h-3 text-cyan-400" />
+              <span>{event.event_date}</span>
+            </span>
+          )}
 
-          <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-cyan-950/80 border border-cyan-400/40 text-cyan-300 backdrop-blur-md shadow-md">
-            {event.badge}
+          <span
+            className={`px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase backdrop-blur-md shadow-md ${
+              isUpcoming
+                ? 'bg-cyan-950/90 border border-cyan-400/50 text-cyan-300'
+                : 'bg-purple-950/90 border border-purple-400/40 text-purple-300'
+            }`}
+          >
+            {isUpcoming ? 'Upcoming' : 'Recent'}
           </span>
         </div>
+
+        {/* Venue Chip bottom left */}
+        {event.venue && (
+          <div className="absolute bottom-2.5 left-3 right-3 z-10">
+            <span className="inline-flex items-center gap-1 text-[11px] text-slate-300 font-medium px-2 py-0.5 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 truncate max-w-full">
+              <MapPin className="w-3 h-3 text-cyan-400 shrink-0" />
+              <span className="truncate">{event.venue}</span>
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* Card Body Details */}
-      <div className="relative z-10 flex flex-col flex-1 p-6 sm:p-7 justify-between">
+      {/* Card Body */}
+      <div className="relative z-10 flex flex-col flex-1 p-6 justify-between">
         <div>
-          <h3 className="text-xl font-bold text-white mb-2.5 tracking-tight group-hover:text-cyan-200 transition-colors">
+          {/* Tags */}
+          {event.tags && event.tags.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5 mb-3">
+              {event.tags.slice(0, 3).map((tag, i) => (
+                <span
+                  key={i}
+                  className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-white/[0.05] border border-white/10 text-slate-300"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <h3 className="text-xl font-bold text-white mb-2.5 tracking-tight group-hover:text-cyan-200 transition-colors line-clamp-2">
             {event.title}
           </h3>
 
-          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal mb-6">
-            {event.summary}
+          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal mb-6 line-clamp-3">
+            {event.description}
           </p>
         </div>
 
-        {/* "Explore Highlights" Modal Trigger */}
-        <div className="pt-4 border-t border-white/10">
+        {/* Actions Bar */}
+        <div className="pt-4 border-t border-white/10 flex flex-col gap-2">
+          {/* If Upcoming & Has Registration Link -> Registration Button */}
+          {isUpcoming && event.registration_link && (
+            <a
+              href={event.registration_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-[#8a2be2] hover:from-cyan-400 hover:to-purple-500 text-white text-xs font-bold tracking-wide shadow-[0_0_20px_rgba(0,242,254,0.35)] hover:shadow-[0_0_30px_rgba(0,242,254,0.5)] transition-all duration-300 cursor-pointer"
+            >
+              <Ticket className="w-3.5 h-3.5" />
+              <span>Register Now</span>
+              <ExternalLink className="w-3.5 h-3.5 ml-0.5" />
+            </a>
+          )}
+
+          {/* Explore / View Details Button */}
           <button
             onClick={onSelect}
-            className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-slate-900/80 border border-white/15 text-xs font-semibold text-slate-200 hover:text-white hover:border-cyan-400/50 hover:bg-cyan-500/10 hover:shadow-[0_0_20px_rgba(0,242,254,0.25)] backdrop-blur-md transition-all duration-300 cursor-pointer group/btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+            className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-slate-900/80 border border-white/15 text-xs font-semibold text-slate-200 hover:text-white hover:border-cyan-400/50 hover:bg-cyan-500/10 backdrop-blur-md transition-all duration-300 cursor-pointer group/btn"
           >
-            <span>Explore Highlights</span>
+            <span>{isUpcoming ? 'View Event Details' : 'Explore Highlights'}</span>
             <div className="w-6 h-6 rounded-full bg-cyan-400/10 border border-cyan-400/30 flex items-center justify-center text-cyan-300 group-hover/btn:translate-x-1 group-hover/btn:bg-cyan-400/20 transition-all">
               <ArrowRight className="w-3.5 h-3.5" />
             </div>
@@ -292,11 +422,16 @@ const EventCard: React.FC<EventCardProps> = ({ event, onSelect }) => {
 };
 
 interface EventModalProps {
-  event: EventData;
+  event: ClubEvent;
   onClose: () => void;
 }
 
 const EventModal: React.FC<EventModalProps> = ({ event, onClose }) => {
+  const isUpcoming = event.category === 'upcoming';
+  const imageSrc =
+    event.cover_image_url ||
+    (isUpcoming ? workshopImg : orientationImg);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
       {/* Backdrop */}
@@ -331,25 +466,38 @@ const EventModal: React.FC<EventModalProps> = ({ event, onClose }) => {
         {/* Modal Banner Image */}
         <div className="relative aspect-[16/9] w-full max-h-72 overflow-hidden bg-slate-900">
           <img
-            src={event.image}
+            src={imageSrc}
             alt={event.title}
             className="w-full h-full object-cover"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = orientationImg;
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent" />
 
           {/* Badges on image */}
           <div className="absolute bottom-4 left-6 right-6 flex flex-wrap items-center gap-2">
-            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-cyan-950/80 border border-cyan-400/40 text-cyan-300 backdrop-blur-md">
-              {event.badge}
+            <span
+              className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider backdrop-blur-md ${
+                isUpcoming
+                  ? 'bg-cyan-950/90 border border-cyan-400/50 text-cyan-300'
+                  : 'bg-purple-950/90 border border-purple-400/40 text-purple-300'
+              }`}
+            >
+              {isUpcoming ? 'Upcoming Event' : 'Recent Event'}
             </span>
-            <span className="px-3 py-1 rounded-full text-xs font-medium bg-slate-900/80 border border-white/20 text-slate-300 backdrop-blur-md flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-cyan-400" />
-              <span>{event.date}</span>
-            </span>
-            <span className="px-3 py-1 rounded-full text-xs font-medium bg-slate-900/80 border border-white/20 text-slate-300 backdrop-blur-md flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-purple-400" />
-              <span>{event.location}</span>
-            </span>
+            {event.event_date && (
+              <span className="px-3 py-1 rounded-full text-xs font-medium bg-slate-900/80 border border-white/20 text-slate-300 backdrop-blur-md flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-cyan-400" />
+                <span>{event.event_date}</span>
+              </span>
+            )}
+            {event.venue && (
+              <span className="px-3 py-1 rounded-full text-xs font-medium bg-slate-900/80 border border-white/20 text-slate-300 backdrop-blur-md flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-purple-400" />
+                <span>{event.venue}</span>
+              </span>
+            )}
           </div>
         </div>
 
@@ -359,53 +507,49 @@ const EventModal: React.FC<EventModalProps> = ({ event, onClose }) => {
             <h2 id="modal-event-title" className="text-2xl sm:text-3xl font-extrabold text-white mb-3">
               {event.title}
             </h2>
-            <p className="text-sm text-slate-300 leading-relaxed">
-              {event.fullDescription}
+
+            {event.tags && event.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-4">
+                {event.tags.map((tag, idx) => (
+                  <span
+                    key={idx}
+                    className="px-2.5 py-1 rounded-lg text-xs font-medium bg-cyan-950/50 border border-cyan-400/30 text-cyan-300"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+              {event.description}
             </p>
           </div>
 
-          {/* Stats Bar */}
-          <div className="grid grid-cols-3 gap-3 p-4 rounded-2xl bg-white/[0.03] border border-white/10 text-center">
-            {event.stats.map((s, idx) => (
-              <div key={idx} className="space-y-1">
-                <div className="text-xl sm:text-2xl font-black bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                  {s.value}
-                </div>
-                <div className="text-[11px] text-slate-400 font-medium">
-                  {s.label}
-                </div>
-              </div>
-            ))}
-          </div>
+          {/* Action Row */}
+          <div className="pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-4">
+            {event.registration_link ? (
+              <a
+                href={event.registration_link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-[#8a2be2] hover:from-cyan-400 hover:to-purple-500 text-white font-bold text-xs tracking-wide shadow-[0_0_20px_rgba(0,242,254,0.3)] transition-all cursor-pointer"
+              >
+                <Ticket className="w-4 h-4" />
+                <span>Register / Join Event</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            ) : (
+              <span className="text-xs text-slate-500 italic">
+                {isUpcoming ? 'Registration details coming soon' : 'Registration closed'}
+              </span>
+            )}
 
-          {/* Key Event Highlights */}
-          <div>
-            <h4 className="text-xs font-bold text-cyan-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
-              <Award className="w-4 h-4" />
-              <span>Session Key Highlights</span>
-            </h4>
-            <div className="space-y-2">
-              {event.highlights.map((highlight, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-start gap-2.5 p-3 rounded-xl bg-white/[0.02] border border-white/5 text-xs text-slate-200"
-                >
-                  <span className="w-5 h-5 rounded-full bg-cyan-400/10 text-cyan-300 border border-cyan-400/30 flex items-center justify-center shrink-0 font-bold text-[10px]">
-                    {idx + 1}
-                  </span>
-                  <span className="leading-relaxed">{highlight}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Close Action Button */}
-          <div className="pt-2 flex justify-end">
             <button
               onClick={onClose}
-              className="px-6 py-2.5 rounded-xl bg-cyan-500/20 border border-cyan-400/40 text-cyan-200 hover:bg-cyan-500/30 font-semibold text-xs tracking-wide transition-all shadow-[0_0_15px_rgba(0,242,254,0.2)] cursor-pointer"
+              className="px-6 py-2.5 rounded-xl bg-white/[0.05] border border-white/15 text-slate-300 hover:text-white font-semibold text-xs tracking-wide transition-all cursor-pointer"
             >
-              Close Highlights
+              Close
             </button>
           </div>
         </div>

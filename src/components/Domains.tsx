@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
 import { motion } from 'motion/react';
 import {
-  Boxes,
   Cpu,
   Palette,
   CalendarCheck,
@@ -182,7 +181,7 @@ const cardVariants = {
     scale: 1,
     transition: {
       duration: 0.65,
-      ease: [0.16, 1, 0.3, 1],
+      ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
     },
   },
 };
@@ -293,25 +292,14 @@ export const Domains: React.FC = () => {
   return (
     <section id="domains" className="relative w-full max-w-7xl mx-auto my-16 sm:my-24 px-4 sm:px-6 lg:px-8">
       {/* Section Header */}
-      <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-        {/* Pill Badge */}
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-950/60 border border-cyan-400/30 text-cyan-300 text-xs font-semibold tracking-widest uppercase mb-4 shadow-[0_0_12px_rgba(0,242,254,0.2)]">
-          <Boxes className="w-3.5 h-3.5 text-cyan-400" />
-          <span>[ SPECIALIZED DIVISIONS ]</span>
-        </div>
-
+      <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
         {/* Section Title */}
-        <h2 className="text-3xl sm:text-4xl lg:text-4xl font-extrabold text-white tracking-tight mb-4">
+        <h2 className="text-3xl sm:text-4xl lg:text-4xl font-extrabold text-white tracking-tight">
           Core Domains &{' '}
           <span className="bg-gradient-to-r from-[#00f2fe] via-cyan-300 to-[#8a2be2] bg-clip-text text-transparent">
             Wings
           </span>
         </h2>
-
-        <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl mx-auto">
-          The four specialized operational wings that drive Infinitix forward, uniting engineering rigor,
-          visual design storytelling, hackathon logistics, and strategic corporate outreach.
-        </p>
       </div>
 
       {/* Interactive 4-Card Domain Matrix with Dual-Color Accents */}

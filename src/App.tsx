@@ -1,15 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {
-  Sliders,
-  ArrowRight,
-  BrainCircuit,
-  Database,
-  Terminal,
-} from 'lucide-react';
+import { Sliders } from 'lucide-react';
 import { VolumetricLightBeam } from './components/VolumetricLightBeam.tsx';
 import { StickyNavbar } from './components/StickyNavbar.tsx';
 import { ShowcaseCarousel } from './components/ShowcaseCarousel.tsx';
 import { VisionCard } from './components/VisionCard.tsx';
+import { Offerings } from './components/Offerings.tsx';
+import { Mission } from './components/Mission.tsx';
+import { Warehouse } from './components/Warehouse.tsx';
+import { Events } from './components/Events.tsx';
+import { Team } from './components/Team.tsx';
 import { DevControlPanel, DevCustomizerState } from './components/DevControlPanel.tsx';
 import { SnistLogo } from './components/Logos.tsx';
 
@@ -69,7 +68,7 @@ export default function App() {
 
   return (
     <main className="relative min-h-screen w-full bg-[#0b0d19] text-slate-100 overflow-x-hidden selection:bg-cyan-500/30 selection:text-cyan-200">
-      {/* 
+      {/*
         ========================================================================
         1. THE VOLUMETRIC LIGHT BEAM CANVAS (Background Layer)
         ========================================================================
@@ -90,7 +89,7 @@ export default function App() {
         originOverride={originCoord}
       />
 
-      {/* 
+      {/*
         ========================================================================
         2. STICKY NAVIGATION BAR (Dynamic Logo Reveal on Scroll)
         - Only SNIST logo visible on page load and throughout Vision section.
@@ -99,127 +98,54 @@ export default function App() {
       */}
       <StickyNavbar />
 
-      {/* Page Content Container: Carousel takes center stage unobstructed */}
+      {/* Page Content Container */}
       <div id="home" className="relative z-10 pt-24 sm:pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        {/* 
+        {/*
           ========================================================================
-          3. HERO ZONE: CLEAN, UNOBSTRUCTED CAROUSEL SHOWCASE
-          - No distracting headline or text overlays.
-          - Pure photo showcase with timer bar and navigation arrows.
+          3. HERO ZONE: SHOWCASE CAROUSEL
           ========================================================================
         */}
         <div className="w-full mb-12 sm:mb-16">
           <ShowcaseCarousel />
         </div>
 
-        {/* 
+        {/*
           ========================================================================
-          4. EXPANDED VISION CARD (Broad max-w-7xl breadth)
-          - id="vision-section" used by navbar to trigger logo slide-in
+          4. VISION CARD
           ========================================================================
         */}
         <VisionCard />
 
-        {/* 
+        {/*
           ========================================================================
-          5. CLUB DOMAINS & EVENTS (Provides Natural Page Scroll Depth)
+          SECTION 2: OUR OFFERINGS
           ========================================================================
         */}
-        <section id="events" className="mt-16 sm:mt-24 max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <span className="text-xs font-semibold tracking-widest text-cyan-400 uppercase block mb-1">
-                Active Initiatives
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-white">
-                Core Focus Tracks
-              </h2>
-            </div>
-            <a
-              href="#about"
-              className="text-xs font-medium text-cyan-300 hover:text-cyan-200 flex items-center gap-1 group"
-            >
-              <span>Explore All</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-            </a>
-          </div>
+        <Offerings />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {/* Track 1 */}
-            <div className="group rounded-2xl bg-slate-950/60 border border-white/10 hover:border-cyan-400/40 p-6 backdrop-blur-xl transition-all duration-300 hover:shadow-[0_0_30px_rgba(0,242,254,0.15)]">
-              <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-400/30 flex items-center justify-center text-cyan-300 mb-4 group-hover:scale-110 transition-transform">
-                <BrainCircuit className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-bold text-white mb-2">
-                Deep Learning & Generative AI
-              </h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Exploring transformer architectures, diffusion pipelines, and LLM fine-tuning techniques for applied research.
-              </p>
-            </div>
+        {/*
+          ========================================================================
+          SECTION 3: OUR MISSION
+          ========================================================================
+        */}
+        <Mission />
 
-            {/* Track 2 */}
-            <div className="group rounded-2xl bg-slate-950/60 border border-white/10 hover:border-indigo-400/40 p-6 backdrop-blur-xl transition-all duration-300 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)]">
-              <div className="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-300 mb-4 group-hover:scale-110 transition-transform">
-                <Database className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-bold text-white mb-2">
-                Predictive Analytics & Big Data
-              </h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Hands-on ETL pipeline construction, high-throughput distributed computing, and statistical inference modeling.
-              </p>
-            </div>
+        {/*
+          ========================================================================
+          SECTION 4: THE WAREHOUSE (Resources & Knowledge Hub)
+          ========================================================================
+        */}
+        <Warehouse />
 
-            {/* Track 3 */}
-            <div className="group rounded-2xl bg-slate-950/60 border border-white/10 hover:border-purple-400/40 p-6 backdrop-blur-xl transition-all duration-300 hover:shadow-[0_0_30px_rgba(192,132,252,0.15)]">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-400/30 flex items-center justify-center text-purple-300 mb-4 group-hover:scale-110 transition-transform">
-                <Terminal className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-bold text-white mb-2">
-                Competitive Hackathons & Datathons
-              </h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Representing SNIST in national and international Kaggle challenges, algorithmic data sprints, and codeathons.
-              </p>
-            </div>
-          </div>
-        </section>
+        {/*
+          ========================================================================
+          SECTION 5: OUR RECENT EVENTS
+          ========================================================================
+        */}
+        <Events />
 
-        {/* Section: Our Team & Community */}
-        <section id="team" className="mt-16 sm:mt-24 max-w-7xl mx-auto rounded-3xl bg-slate-950/60 border border-white/10 p-8 sm:p-12 backdrop-blur-xl">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <div>
-              <span className="text-xs font-semibold tracking-widest text-cyan-400 uppercase block mb-1">
-                Student Leadership
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-white">
-                Our Team & Mentorship
-              </h2>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-400">Department of CSE & AI</span>
-              <span aria-hidden="true" className="text-slate-600">·</span>
-              <span className="text-xs text-cyan-300 font-medium">SNIST Hyderabad</span>
-            </div>
-          </div>
-
-          <p className="text-sm text-slate-300 leading-relaxed max-w-4xl">
-            Infinitix operates under the academic guidance of distinguished faculty advisors and industry veterans at
-            Sreenidhi Institute of Science and Technology. Led by student coordinators across technical research,
-            event logistics, industry outreach, and media production, our community is open to all passionate learners.
-          </p>
-
-          <div className="mt-6 flex flex-wrap items-center gap-4 text-xs text-slate-400 pt-6 border-t border-white/10">
-            <span>2026 Executive Council</span>
-            <span aria-hidden="true">·</span>
-            <span>Peer Research Mentors</span>
-            <span aria-hidden="true">·</span>
-            <span>Kaggle Grandmaster Workshops</span>
-            <span aria-hidden="true">·</span>
-            <span>Weekly Hands-on Code Labs</span>
-          </div>
-        </section>
+        {/* Section: Who Drives Our Club (Dynamic Team) */}
+        <Team />
 
         {/* Section: Contact & Join */}
         <footer id="contact" className="mt-20 pt-10 pb-6 border-t border-white/10 text-xs text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -231,6 +157,14 @@ export default function App() {
           <div className="flex items-center gap-4">
             <a href="#home" className="hover:text-cyan-300 transition-colors">Back to Top</a>
             <span aria-hidden="true">·</span>
+            <a
+              href="/infinite"
+              className="text-slate-300 hover:text-cyan-300 transition-colors flex items-center gap-1"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+              <span>Council Portal</span>
+            </a>
+            <span aria-hidden="true">·</span>
             <button
               onClick={() => setIsCustomizerOpen(true)}
               className="text-cyan-400 hover:text-cyan-300 font-semibold cursor-pointer"
@@ -241,9 +175,9 @@ export default function App() {
         </footer>
       </div>
 
-      {/* 
+      {/*
         ========================================================================
-        6. HIDDEN / COLLAPSIBLE "DEV CONTROL PANEL" (Live Customizer)
+        HIDDEN / COLLAPSIBLE "DEV CONTROL PANEL" (Live Customizer)
         - Floating toggle button in bottom-right corner
         ========================================================================
       */}

@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { motion } from 'motion/react';
-import { Target, Users, FlaskConical, Rocket, ShieldCheck } from 'lucide-react';
+import { Users, FlaskConical, Rocket } from 'lucide-react';
 
 const stats = [
   {
@@ -48,7 +48,7 @@ const itemVariants = {
     scale: 1,
     transition: {
       duration: 0.7,
-      ease: [0.16, 1, 0.3, 1],
+      ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
     },
   },
 };
@@ -96,29 +96,14 @@ export const Mission: React.FC = () => {
 
         {/* Main Content Area */}
         <div className="relative z-10">
-          <motion.div variants={itemVariants} className="max-w-4xl">
-            {/* Pill badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-950/60 border border-purple-400/30 text-purple-300 text-xs font-semibold tracking-widest uppercase mb-4 shadow-[0_0_12px_rgba(138,43,226,0.2)]">
-              <Target className="w-3.5 h-3.5 text-purple-400" />
-              <span>[ OUR CORE MISSION ]</span>
-            </div>
-
+          <motion.div variants={itemVariants} className="max-w-4xl mb-8 sm:mb-10">
             {/* Header */}
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight mb-4">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight">
               Our{' '}
               <span className="bg-gradient-to-r from-[#00f2fe] via-cyan-300 to-[#8a2be2] bg-clip-text text-transparent">
                 Mission
               </span>
             </h2>
-
-            {/* Mission Statement */}
-            <p className="text-sm sm:text-base lg:text-lg text-slate-200 leading-relaxed font-normal text-pretty mb-8 sm:mb-10">
-              At Infinitix, our mission is to aggressively bridge the gap between theoretical data science
-              foundations and practical, production-grade applications. We foster a vibrant student research ethos,
-              champion open-source collaboration, and advocate for ethical, transparent AI development. By dismantling
-              barriers to high-performance computing, curated datasets, and algorithmic mentorship, we empower every
-              member to transform raw data into transformative, real-world solutions that serve industry and society.
-            </p>
           </motion.div>
 
           {/* 3-Part Metrics Strip */}

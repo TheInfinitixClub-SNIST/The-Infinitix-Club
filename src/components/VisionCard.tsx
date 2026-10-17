@@ -31,11 +31,6 @@ export const VisionCard: React.FC = () => {
 
           {/* Right Column: Heading & Vision Paragraph */}
           <div className="flex-1 w-full text-center md:text-left">
-            <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-cyan-400 mb-2">
-              <span>Club Foundation</span>
-              <span aria-hidden="true" className="text-slate-600">·</span>
-              <span>Our Purpose</span>
-            </div>
             <h2 className="text-2xl sm:text-3xl lg:text-3xl font-bold tracking-tight text-white mb-3.5 flex items-center justify-center md:justify-start">
               Vision Of Our Club
             </h2>
