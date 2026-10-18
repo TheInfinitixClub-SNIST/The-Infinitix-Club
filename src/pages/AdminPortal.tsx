@@ -26,11 +26,14 @@ import {
   Instagram,
   RefreshCw,
   Database,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react';
 import {
   supabase,
   TeamMember,
   ClubEvent,
+  HeroSlide,
   TeamTier,
   EventCategory,
 } from '../lib/supabase';
@@ -49,7 +52,7 @@ export const AdminPortal: React.FC = () => {
   const [isSubmittingAuth, setIsSubmittingAuth] = useState(false);
 
   // Admin Dashboard State
-  const [activeTab, setActiveTab] = useState<'team' | 'events'>('team');
+  const [activeTab, setActiveTab] = useState<'team' | 'events' | 'slides'>('team');
 
   // Team state
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
@@ -70,6 +73,14 @@ export const AdminPortal: React.FC = () => {
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<ClubEvent | null>(null);
 
+  // Hero Slides state
+  const [slides, setSlides] = useState<HeroSlide[]>([]);
+  const [isSlidesLoading, setIsSlidesLoading] = useState(false);
+  const [slideSearch, setSlideSearch] = useState('');
+  const [editingSlide, setEditingSlide] = useState<Partial<HeroSlide> | null>(null);
+  const [isSlideModalOpen, setIsSlideModalOpen] = useState(false);
+  const [slideToDelete, setSlideToDelete] = useState<HeroSlide | null>(null);
+
   // Action status toast
   const [toastMessage, setToastMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [isSeeding, setIsSeeding] = useState(false);
@@ -83,10 +94,13 @@ export const AdminPortal: React.FC = () => {
     setIsSeeding(true);
     try {
       const res = await seedInitialData(supabase);
-      if (res.teamInserted > 0) {
-        showToast(
-          `Successfully seeded ${res.teamInserted} team members into Supabase!`
-        );
+      const parts = [];
+      if (res.teamInserted > 0) parts.push(`${res.teamInserted} team members`);
+      if (res.eventsInserted > 0) parts.push(`${res.eventsInserted} events`);
+      if (res.slidesInserted > 0) parts.push(`${res.slidesInserted} hero slides`);
+
+      if (parts.length > 0) {
+        showToast(`Successfully seeded ${parts.join(', ')} into Supabase!`);
       } else if (res.errors.length > 0) {
         showToast(`Notice: ${res.errors[0]}`, 'error');
       } else {
@@ -94,6 +108,7 @@ export const AdminPortal: React.FC = () => {
       }
       await fetchTeam();
       await fetchEvents();
+      await fetchSlides();
     } catch (err: any) {
       showToast(err.message || 'Seeding failed', 'error');
     } finally {
@@ -164,11 +179,32 @@ export const AdminPortal: React.FC = () => {
     }
   };
 
+  // Fetch hero slides
+  const fetchSlides = async () => {
+    setIsSlidesLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('hero_slides')
+        .select('*')
+        .order('order_index', { ascending: true, nullsFirst: false })
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+      setSlides((data || []) as HeroSlide[]);
+    } catch (err: any) {
+      console.error('Fetch slides error:', err);
+      showToast(err.message || 'Failed to load hero slides', 'error');
+    } finally {
+      setIsSlidesLoading(false);
+    }
+  };
+
   // Load data when authenticated
   useEffect(() => {
     if (session) {
       fetchTeam();
       fetchEvents();
+      fetchSlides();
     }
   }, [session]);
 
@@ -369,6 +405,110 @@ export const AdminPortal: React.FC = () => {
     }
   };
 
+  // Slide modal handlers
+  const handleOpenAddSlide = () => {
+    setEditingSlide({
+      image_url: '',
+      title: '',
+      order_index: slides.length + 1,
+    });
+    setIsSlideModalOpen(true);
+  };
+
+  const handleOpenEditSlide = (slide: HeroSlide) => {
+    setEditingSlide({ ...slide });
+    setIsSlideModalOpen(true);
+  };
+
+  const handleSaveSlide = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingSlide || !editingSlide.image_url) {
+      showToast('Image URL is required', 'error');
+      return;
+    }
+
+    try {
+      const payload = {
+        image_url: editingSlide.image_url.trim(),
+        title: editingSlide.title ? editingSlide.title.trim() : null,
+        order_index:
+          typeof editingSlide.order_index === 'number'
+            ? editingSlide.order_index
+            : slides.length + 1,
+      };
+
+      if (editingSlide.id) {
+        const { error } = await supabase
+          .from('hero_slides')
+          .update(payload)
+          .eq('id', editingSlide.id);
+        if (error) throw error;
+        showToast('Updated hero slide successfully!');
+      } else {
+        const { error } = await supabase.from('hero_slides').insert([payload]);
+        if (error) throw error;
+        showToast('Created new hero slide!');
+      }
+
+      setIsSlideModalOpen(false);
+      setEditingSlide(null);
+      fetchSlides();
+    } catch (err: any) {
+      showToast(err.message || 'Failed to save slide', 'error');
+    }
+  };
+
+  const handleDeleteSlide = async () => {
+    if (!slideToDelete) return;
+    try {
+      const { error } = await supabase
+        .from('hero_slides')
+        .delete()
+        .eq('id', slideToDelete.id);
+      if (error) throw error;
+      showToast('Removed hero slide successfully!');
+      setSlideToDelete(null);
+      fetchSlides();
+    } catch (err: any) {
+      showToast(err.message || 'Failed to delete slide', 'error');
+    }
+  };
+
+  const handleMoveSlide = async (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= slides.length) return;
+
+    const currentSlide = slides[index];
+    const targetSlide = slides[targetIndex];
+
+    try {
+      const currentOrder = currentSlide.order_index ?? index + 1;
+      const targetOrder = targetSlide.order_index ?? targetIndex + 1;
+      const newCurrentOrder =
+        targetOrder === currentOrder
+          ? direction === 'up'
+            ? currentOrder - 1
+            : currentOrder + 1
+          : targetOrder;
+
+      await Promise.all([
+        supabase
+          .from('hero_slides')
+          .update({ order_index: newCurrentOrder })
+          .eq('id', currentSlide.id),
+        supabase
+          .from('hero_slides')
+          .update({ order_index: currentOrder })
+          .eq('id', targetSlide.id),
+      ]);
+
+      showToast('Reordered slide successfully!');
+      fetchSlides();
+    } catch (err: any) {
+      showToast(err.message || 'Failed to reorder slide', 'error');
+    }
+  };
+
   // Loading state
   if (isAuthLoading) {
     return (
@@ -532,6 +672,14 @@ export const AdminPortal: React.FC = () => {
     return matchesCategory && matchesSearch;
   });
 
+  const filteredSlides = slides.filter((s) => {
+    if (!slideSearch) return true;
+    return (
+      (s.title || '').toLowerCase().includes(slideSearch.toLowerCase()) ||
+      s.image_url.toLowerCase().includes(slideSearch.toLowerCase())
+    );
+  });
+
   return (
     <div className="min-h-screen bg-[#0b0d19] text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-200">
       {/* Toast Notification */}
@@ -638,13 +786,11 @@ export const AdminPortal: React.FC = () => {
 
           <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl">
             <div className="flex items-center justify-between text-slate-400 mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider">Upcoming Registrations</span>
-              <Ticket className="w-4 h-4 text-emerald-400" />
+              <span className="text-xs font-semibold uppercase tracking-wider">Hero Slides</span>
+              <ImageIcon className="w-4 h-4 text-cyan-300" />
             </div>
-            <div className="text-2xl font-bold text-white">
-              {events.filter((e) => e.category === 'upcoming' && e.registration_link).length}
-            </div>
-            <div className="text-[11px] text-slate-500 mt-1">Active RSVP link links</div>
+            <div className="text-2xl font-bold text-white">{slides.length}</div>
+            <div className="text-[11px] text-slate-500 mt-1">Homepage Carousel Slides</div>
           </div>
 
           <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl">
@@ -688,7 +834,7 @@ export const AdminPortal: React.FC = () => {
 
         {/* Tab Selector & Controls */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
-          <div className="flex items-center gap-2 p-1 rounded-2xl bg-white/[0.04] border border-white/10 w-fit">
+          <div className="flex items-center gap-2 p-1 rounded-2xl bg-white/[0.04] border border-white/10 w-fit flex-wrap">
             <button
               onClick={() => setActiveTab('team')}
               className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
@@ -712,6 +858,18 @@ export const AdminPortal: React.FC = () => {
               <Calendar className="w-4 h-4" />
               <span>Events ({events.length})</span>
             </button>
+
+            <button
+              onClick={() => setActiveTab('slides')}
+              className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeTab === 'slides'
+                  ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-300 border border-cyan-400/40 shadow-[0_0_15px_rgba(0,242,254,0.2)]'
+                  : 'text-slate-400 hover:text-white border border-transparent'
+              }`}
+            >
+              <ImageIcon className="w-4 h-4" />
+              <span>Hero Slides ({slides.length})</span>
+            </button>
           </div>
 
           <div className="flex items-center gap-3">
@@ -719,7 +877,7 @@ export const AdminPortal: React.FC = () => {
               onClick={handleSeedDatabase}
               disabled={isSeeding}
               className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white/[0.05] hover:bg-cyan-500/15 border border-white/10 hover:border-cyan-400/40 text-slate-300 hover:text-cyan-300 text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
-              title="Populate Supabase tables with initial club team members and events"
+              title="Populate Supabase tables with initial club team members, events, and hero slides"
             >
               {isSeeding ? (
                 <RefreshCw className="w-3.5 h-3.5 animate-spin text-cyan-400" />
@@ -737,13 +895,21 @@ export const AdminPortal: React.FC = () => {
                 <Plus className="w-4 h-4" />
                 <span>Add Team Member</span>
               </button>
-            ) : (
+            ) : activeTab === 'events' ? (
               <button
                 onClick={handleOpenAddEvent}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-[#8a2be2] hover:from-cyan-400 hover:to-purple-500 text-white font-bold text-xs tracking-wide shadow-[0_0_20px_rgba(0,242,254,0.3)] transition-all cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Event</span>
+              </button>
+            ) : (
+              <button
+                onClick={handleOpenAddSlide}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-[#8a2be2] hover:from-cyan-400 hover:to-purple-500 text-white font-bold text-xs tracking-wide shadow-[0_0_20px_rgba(0,242,254,0.3)] transition-all cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add Hero Slide</span>
               </button>
             )}
           </div>
@@ -1030,6 +1196,139 @@ export const AdminPortal: React.FC = () => {
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* =========================================================================
+            TAB 3: HERO SLIDES MANAGEMENT
+           ========================================================================= */}
+        {activeTab === 'slides' && (
+          <div className="space-y-6">
+            {/* Search and Action Bar */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
+              <div className="text-xs text-slate-400">
+                Displaying <span className="text-white font-bold">{filteredSlides.length}</span> of{' '}
+                <span className="text-white font-bold">{slides.length}</span> hero slides
+              </div>
+
+              <div className="relative w-full sm:w-64">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={slideSearch}
+                  onChange={(e) => setSlideSearch(e.target.value)}
+                  placeholder="Search slides..."
+                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-white/[0.04] border border-white/15 focus:border-cyan-400 text-white text-xs outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Slides Cards Grid */}
+            {isSlidesLoading ? (
+              <div className="py-20 flex flex-col items-center justify-center gap-3 text-cyan-400">
+                <RefreshCw className="w-8 h-8 animate-spin" />
+                <span className="text-xs font-semibold text-slate-400">Loading hero slides...</span>
+              </div>
+            ) : filteredSlides.length === 0 ? (
+              <div className="p-12 rounded-3xl bg-white/[0.02] border border-white/10 text-center">
+                <ImageIcon className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+                <h4 className="text-base font-bold text-white mb-1">No Hero Slides Found</h4>
+                <p className="text-xs text-slate-400 max-w-sm mx-auto mb-6">
+                  {slideSearch
+                    ? 'No slides match your search query.'
+                    : 'Add slides or click "Seed Initial Data" above to populate default showcase slides.'}
+                </p>
+                <button
+                  onClick={handleOpenAddSlide}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-[#8a2be2] text-white font-bold text-xs shadow-lg cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add First Slide</span>
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredSlides.map((slide, index) => (
+                  <div
+                    key={slide.id}
+                    className="group relative rounded-2xl bg-white/[0.03] border border-white/10 hover:border-cyan-400/40 overflow-hidden transition-all duration-300 flex flex-col justify-between"
+                  >
+                    <div>
+                      {/* Image Thumbnail with order badge */}
+                      <div className="relative aspect-[16/9] w-full bg-slate-900 overflow-hidden">
+                        <img
+                          src={slide.image_url}
+                          alt={slide.title || 'Hero Slide'}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          onError={(e: any) => {
+                            e.target.src =
+                              'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80';
+                          }}
+                        />
+                        <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-full bg-black/70 border border-cyan-400/40 text-cyan-300 font-mono text-[11px] font-bold backdrop-blur-md">
+                          #{slide.order_index ?? index + 1}
+                        </div>
+                      </div>
+
+                      {/* Content */}
+                      <div className="p-4">
+                        <h4 className="text-sm font-bold text-white truncate">
+                          {slide.title || (
+                            <span className="text-slate-500 italic font-normal">
+                              No caption provided
+                            </span>
+                          )}
+                        </h4>
+                        <p className="text-[11px] text-slate-400 truncate mt-1 font-mono">
+                          {slide.image_url}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Bottom Action Bar */}
+                    <div className="p-4 pt-2 border-t border-white/5 flex items-center justify-between">
+                      {/* Reorder Buttons (Move Up / Move Down) */}
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => handleMoveSlide(index, 'up')}
+                          disabled={index === 0}
+                          className="p-1.5 rounded-lg bg-white/[0.05] hover:bg-cyan-500/20 text-slate-300 hover:text-cyan-200 border border-white/10 disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
+                          title="Move Slide Earlier in Sequence"
+                        >
+                          <ArrowUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleMoveSlide(index, 'down')}
+                          disabled={index === filteredSlides.length - 1}
+                          className="p-1.5 rounded-lg bg-white/[0.05] hover:bg-cyan-500/20 text-slate-300 hover:text-cyan-200 border border-white/10 disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
+                          title="Move Slide Later in Sequence"
+                        >
+                          <ArrowDown className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      {/* Edit & Delete Buttons */}
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleOpenEditSlide(slide)}
+                          className="p-1.5 rounded-lg bg-white/[0.05] hover:bg-cyan-500/20 text-slate-300 hover:text-cyan-200 border border-white/10 transition-colors cursor-pointer"
+                          aria-label="Edit Slide"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => setSlideToDelete(slide)}
+                          className="p-1.5 rounded-lg bg-white/[0.05] hover:bg-red-500/20 text-slate-300 hover:text-red-300 border border-white/10 transition-colors cursor-pointer"
+                          aria-label="Delete Slide"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -1505,7 +1804,7 @@ export const AdminPortal: React.FC = () => {
               <p className="text-xs text-slate-400 mb-6">
                 Are you sure you want to permanently delete{' '}
                 <span className="text-white font-semibold">
-                  "{memberToDelete?.name || eventToDelete?.title}"
+                  "{memberToDelete?.name || eventToDelete?.title || slideToDelete?.title || 'this slide'}"
                 </span>
                 ? This action cannot be undone.
               </p>
@@ -1515,18 +1814,154 @@ export const AdminPortal: React.FC = () => {
                   onClick={() => {
                     setMemberToDelete(null);
                     setEventToDelete(null);
+                    setSlideToDelete(null);
                   }}
                   className="px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-xs font-semibold text-slate-300 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
-                  onClick={memberToDelete ? handleDeleteMember : handleDeleteEvent}
+                  onClick={
+                    memberToDelete
+                      ? handleDeleteMember
+                      : eventToDelete
+                      ? handleDeleteEvent
+                      : handleDeleteSlide
+                  }
                   className="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs shadow-[0_0_15px_rgba(239,68,68,0.4)] transition-all cursor-pointer"
                 >
                   Yes, Delete
                 </button>
               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* =========================================================================
+          MODAL: ADD / EDIT HERO SLIDE (With Live Banner Preview)
+         ========================================================================= */}
+      <AnimatePresence>
+        {isSlideModalOpen && editingSlide && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => {
+                setIsSlideModalOpen(false);
+                setEditingSlide(null);
+              }}
+              className="fixed inset-0 bg-black/80 backdrop-blur-md"
+            />
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-xl rounded-3xl bg-[#0b0d19] border border-cyan-400/40 p-6 sm:p-8 shadow-2xl z-10 my-8 overflow-hidden"
+            >
+              <h3 className="text-xl font-bold text-white mb-1">
+                {editingSlide.id ? 'Edit Hero Slide' : 'Add New Hero Slide'}
+              </h3>
+              <p className="text-xs text-slate-400 mb-6">
+                Manage the high-impact sliding banner showcasing club hackathons, workshops, and milestones.
+              </p>
+
+              <form onSubmit={handleSaveSlide} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    Image URL *
+                  </label>
+                  <input
+                    type="url"
+                    required
+                    value={editingSlide.image_url || ''}
+                    onChange={(e) =>
+                      setEditingSlide({ ...editingSlide, image_url: e.target.value })
+                    }
+                    placeholder="https://images.unsplash.com/... or /assets/..."
+                    className="w-full px-3.5 py-2 rounded-xl bg-white/[0.04] border border-white/15 focus:border-cyan-400 text-white text-xs outline-none mb-2"
+                  />
+
+                  {/* Live Banner Preview */}
+                  {editingSlide.image_url && (
+                    <div className="relative aspect-[16/9] rounded-xl overflow-hidden border border-cyan-400/30 bg-slate-900 mt-2">
+                      <img
+                        src={editingSlide.image_url}
+                        alt="Live banner preview"
+                        className="w-full h-full object-cover"
+                        onError={(e: any) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                      <span className="absolute bottom-2 right-2 text-[10px] bg-black/70 px-2 py-0.5 rounded text-cyan-300 font-mono">
+                        Live 16:9 Banner Preview
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">
+                      Slide Title / Caption (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={editingSlide.title || ''}
+                      onChange={(e) =>
+                        setEditingSlide({ ...editingSlide, title: e.target.value })
+                      }
+                      placeholder="e.g. AI Hackathon 2026 Showcase"
+                      className="w-full px-3.5 py-2 rounded-xl bg-white/[0.04] border border-white/15 focus:border-cyan-400 text-white text-xs outline-none"
+                    />
+                    <span className="text-[10px] text-slate-500 mt-1 block">
+                      Displayed as a sleek overlay badge on the slide.
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">
+                      Display Order Index
+                    </label>
+                    <input
+                      type="number"
+                      value={editingSlide.order_index ?? ''}
+                      onChange={(e) =>
+                        setEditingSlide({
+                          ...editingSlide,
+                          order_index: parseInt(e.target.value, 10) || 0,
+                        })
+                      }
+                      placeholder="1, 2, 3..."
+                      className="w-full px-3.5 py-2 rounded-xl bg-white/[0.04] border border-white/15 focus:border-cyan-400 text-white text-xs outline-none"
+                    />
+                    <span className="text-[10px] text-slate-500 mt-1 block">
+                      Controls sequential playback order.
+                    </span>
+                  </div>
+                </div>
+
+                <div className="pt-4 flex items-center justify-end gap-3 border-t border-white/10">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSlideModalOpen(false);
+                      setEditingSlide(null);
+                    }}
+                    className="px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-xs font-semibold text-slate-300 transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-[#8a2be2] hover:from-cyan-400 hover:to-purple-500 text-white font-bold text-xs tracking-wide shadow-[0_0_20px_rgba(0,242,254,0.3)] transition-all cursor-pointer"
+                  >
+                    {editingSlide.id ? 'Save Changes' : 'Save Slide'}
+                  </button>
+                </div>
+              </form>
             </motion.div>
           </div>
         )}

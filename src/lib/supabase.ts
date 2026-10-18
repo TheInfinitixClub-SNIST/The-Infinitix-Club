@@ -45,3 +45,11 @@ export interface ClubEvent {
   registration_link?: string | null;
   created_at?: string;
 }
+
+export interface HeroSlide {
+  id: string;
+  image_url: string;
+  title?: string | null;
+  order_index?: number | null;
+  created_at?: string;
+}

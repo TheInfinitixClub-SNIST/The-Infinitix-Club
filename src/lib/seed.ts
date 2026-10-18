@@ -251,14 +251,45 @@ export const INITIAL_EVENTS: Omit<ClubEvent, 'id' | 'created_at'>[] = [
   },
 ];
 
+export interface SeedHeroSlidePayload {
+  image_url: string;
+  title: string | null;
+  order_index: number;
+}
+
+export const INITIAL_HERO_SLIDES: SeedHeroSlidePayload[] = [
+  {
+    image_url: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1600&q=80',
+    title: 'Infinitix Hackathon Showcase',
+    order_index: 1,
+  },
+  {
+    image_url: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1600&q=80',
+    title: 'Infinitix AI Workshop',
+    order_index: 2,
+  },
+  {
+    image_url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1600&q=80',
+    title: 'Infinitix Club Team',
+    order_index: 3,
+  },
+  {
+    image_url: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1600&q=80',
+    title: 'Infinitix Orientation Day',
+    order_index: 4,
+  },
+];
+
 export async function seedInitialData(client: SupabaseClient): Promise<{
   teamInserted: number;
   eventsInserted: number;
+  slidesInserted: number;
   errors: string[];
 }> {
   const errors: string[] = [];
   let teamInserted = 0;
   let eventsInserted = 0;
+  let slidesInserted = 0;
 
   // Clean, strictly validated payload to ensure every tier is valid and non-empty
   const validTiers = new Set([
@@ -340,5 +371,30 @@ export async function seedInitialData(client: SupabaseClient): Promise<{
     errors.push(`Events exception: ${err.message}`);
   }
 
-  return { teamInserted, eventsInserted, errors };
+  // Check if hero_slides table already has entries; if empty, seed hero slides
+  try {
+    const { data: existingSlides } = await client
+      .from('hero_slides')
+      .select('id')
+      .limit(1);
+
+    if (!existingSlides || existingSlides.length === 0) {
+      const { data, error } = await client
+        .from('hero_slides')
+        .insert(INITIAL_HERO_SLIDES)
+        .select();
+
+      if (error) {
+        errors.push(`Hero slides seed error: ${error.message}`);
+      } else if (data) {
+        slidesInserted = data.length;
+      }
+    } else {
+      slidesInserted = existingSlides.length;
+    }
+  } catch (err: any) {
+    errors.push(`Hero slides exception: ${err.message}`);
+  }
+
+  return { teamInserted, eventsInserted, slidesInserted, errors };
 }
