@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Instagram, Linkedin, MapPin, Mail } from 'lucide-react';
+import { Instagram, Linkedin, MapPin, Mail, Sliders } from 'lucide-react';
 import { VolumetricLightBeam } from './components/VolumetricLightBeam.tsx';
 import { StickyNavbar } from './components/StickyNavbar.tsx';
 import { ShowcaseCarousel } from './components/ShowcaseCarousel.tsx';
@@ -242,6 +242,23 @@ export default function App() {
       </div>
 
 
+
+      {/* Floating Customize Lighting Widget */}
+      <aside aria-label="Lighting controls" className="fixed bottom-6 right-6 z-50">
+        <button
+          onClick={() => setIsCustomizerOpen(true)}
+          className="group relative flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-slate-900/90 hover:bg-slate-900 border border-cyan-400/40 hover:border-cyan-300 text-slate-200 hover:text-white shadow-[0_0_25px_rgba(0,242,254,0.3)] backdrop-blur-xl transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+          aria-label="Open lighting customizer"
+        >
+          <div className="p-1 rounded-full bg-cyan-400/20 text-cyan-300 group-hover:rotate-45 transition-transform duration-300">
+            <Sliders className="w-3.5 h-3.5" />
+          </div>
+          <span className="text-xs font-semibold tracking-wide whitespace-nowrap">
+            Customize Lighting
+          </span>
+          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+        </button>
+      </aside>
 
       {/* Slide-out Customizer Drawer */}
       <DevControlPanel

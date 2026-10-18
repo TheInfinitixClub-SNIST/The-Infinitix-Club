@@ -47,7 +47,6 @@ export const AdminPortal: React.FC = () => {
   const [authError, setAuthError] = useState<string | null>(null);
   const [authSuccess, setAuthSuccess] = useState<string | null>(null);
   const [isSubmittingAuth, setIsSubmittingAuth] = useState(false);
-  const [isSignUpMode, setIsSignUpMode] = useState(false);
 
   // Admin Dashboard State
   const [activeTab, setActiveTab] = useState<'team' | 'events'>('team');
@@ -173,7 +172,7 @@ export const AdminPortal: React.FC = () => {
     }
   }, [session]);
 
-  // Auth handler
+  // Auth handler (Login Only)
   const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError(null);
@@ -181,27 +180,13 @@ export const AdminPortal: React.FC = () => {
     setIsSubmittingAuth(true);
 
     try {
-      if (isSignUpMode) {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-        });
-        if (error) throw error;
-        if (data.session) {
-          setSession(data.session);
-          showToast('Account created and logged in!');
-        } else {
-          setAuthSuccess('Account registered! Please check your email to confirm verification, or sign in.');
-        }
-      } else {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (error) throw error;
-        setSession(data.session);
-        showToast('Logged in successfully!');
-      }
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) throw error;
+      setSession(data.session);
+      showToast('Logged in successfully!');
     } catch (err: any) {
       setAuthError(err.message || 'Authentication failed. Please verify credentials.');
     } finally {
@@ -520,26 +505,10 @@ export const AdminPortal: React.FC = () => {
                   <span>Authenticating...</span>
                 </>
               ) : (
-                <span>{isSignUpMode ? 'Register Admin Account' : 'Authenticate & Enter'}</span>
+                <span>Authenticate & Enter</span>
               )}
             </button>
           </form>
-
-          {/* Toggle between Sign In & Sign Up */}
-          <div className="mt-6 pt-4 border-t border-white/10 text-center">
-            <button
-              onClick={() => {
-                setIsSignUpMode(!isSignUpMode);
-                setAuthError(null);
-                setAuthSuccess(null);
-              }}
-              className="text-xs text-slate-400 hover:text-cyan-300 transition-colors cursor-pointer"
-            >
-              {isSignUpMode
-                ? 'Already have an admin account? Sign In'
-                : 'Need to register your council email? Create Account'}
-            </button>
-          </div>
         </motion.div>
       </div>
     );
