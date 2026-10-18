@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Sliders } from 'lucide-react';
+import { Instagram, Linkedin, MapPin, Mail } from 'lucide-react';
 import { VolumetricLightBeam } from './components/VolumetricLightBeam.tsx';
 import { StickyNavbar } from './components/StickyNavbar.tsx';
 import { ShowcaseCarousel } from './components/ShowcaseCarousel.tsx';
@@ -10,7 +10,6 @@ import { Warehouse } from './components/Warehouse.tsx';
 import { Events } from './components/Events.tsx';
 import { Team } from './components/Team.tsx';
 import { DevControlPanel, DevCustomizerState } from './components/DevControlPanel.tsx';
-import { SnistLogo } from './components/Logos.tsx';
 
 const DEFAULT_CUSTOMIZER: DevCustomizerState = {
   primaryColor: '#00f2fe',
@@ -147,55 +146,102 @@ export default function App() {
         {/* Section: Who Drives Our Club (Dynamic Team) */}
         <Team />
 
-        {/* Section: Contact & Join */}
-        <footer id="contact" className="mt-20 pt-10 pb-6 border-t border-white/10 text-xs text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <SnistLogo showText={false} />
-            <span>Sreenidhi Institute of Science and Technology · Infinitix Club</span>
+        {/* ================================================================
+          FOOTER: Club Footer with Social Links, Nav & Contact
+        ================================================================ */}
+        <footer id="contact" className="mt-24">
+          {/* Main Footer Body */}
+          <div className="border-t border-white/10 bg-[#0b0d19]/80 backdrop-blur-xl py-12 px-6 rounded-t-2xl">
+            <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
+
+              {/* ── Left Column: Reach Out ── */}
+              <div className="flex flex-col items-center md:items-start gap-6">
+                <div className="text-center md:text-left">
+                  <h3 className="text-xl font-bold text-white tracking-tight">Reach Out</h3>
+                  <p className="text-sm text-slate-400 mt-1">We are eager to connect</p>
+                </div>
+
+                {/* Social Icons */}
+                <div className="flex items-center gap-4">
+                  <a
+                    href="https://www.instagram.com/theinfinitixclub/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Infinitix Club Instagram"
+                    className="w-10 h-10 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-slate-300 hover:text-pink-400 hover:border-pink-400/50 hover:bg-pink-500/10 transition-all duration-300"
+                  >
+                    <Instagram className="w-4 h-4" />
+                  </a>
+                  <a
+                    href="https://www.linkedin.com/company/the-infinitix-club"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Infinitix Club LinkedIn"
+                    className="w-10 h-10 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-slate-300 hover:text-sky-400 hover:border-sky-400/50 hover:bg-sky-500/10 transition-all duration-300"
+                  >
+                    <Linkedin className="w-4 h-4" />
+                  </a>
+                  <a
+                    href="https://maps.app.goo.gl/sreenidhi-snist"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Sreenidhi Institute of Science and Technology on Google Maps"
+                    className="w-10 h-10 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-slate-300 hover:text-cyan-400 hover:border-cyan-400/50 hover:bg-cyan-500/10 transition-all duration-300"
+                  >
+                    <MapPin className="w-4 h-4" />
+                  </a>
+                </div>
+
+                {/* Quick Navigation */}
+                <nav aria-label="Footer navigation" className="grid grid-cols-2 gap-x-8 gap-y-2">
+                  {[
+                    { label: 'Home', href: '#home' },
+                    { label: 'About Us', href: '#vision-section' },
+                    { label: 'Our Events', href: '#events' },
+                    { label: 'Our Team', href: '#team' },
+                  ].map((link) => (
+                    <a
+                      key={link.href}
+                      href={link.href}
+                      className="text-sm text-slate-400 hover:text-cyan-300 transition-colors duration-200"
+                    >
+                      {link.label}
+                    </a>
+                  ))}
+                </nav>
+              </div>
+
+              {/* ── Right Column: Send us a Data Packet! ── */}
+              <div className="flex flex-col items-center md:items-start gap-4">
+                <div className="text-center md:text-left">
+                  <h3 className="text-xl font-bold text-white tracking-tight">Send us a Data Packet!</h3>
+                </div>
+
+                <a
+                  href="mailto:theinfinitixclub@gmail.com"
+                  className="group inline-flex items-center gap-3 px-5 py-3 rounded-xl bg-white/[0.04] border border-white/10 hover:border-cyan-400/40 hover:bg-cyan-500/5 transition-all duration-300"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-cyan-500/15 border border-cyan-400/30 flex items-center justify-center text-cyan-400 group-hover:bg-cyan-500/25 transition-colors">
+                    <Mail className="w-4 h-4" />
+                  </div>
+                  <span className="text-sm text-slate-300 group-hover:text-cyan-200 transition-colors tracking-wide">
+                    theinfinitixclub@gmail.com
+                  </span>
+                </a>
+              </div>
+            </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <a href="#home" className="hover:text-cyan-300 transition-colors">Back to Top</a>
-            <span aria-hidden="true">·</span>
-            <a
-              href="/infinite"
-              className="text-slate-300 hover:text-cyan-300 transition-colors flex items-center gap-1"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-              <span>Council Portal</span>
-            </a>
-            <span aria-hidden="true">·</span>
-            <button
-              onClick={() => setIsCustomizerOpen(true)}
-              className="text-cyan-400 hover:text-cyan-300 font-semibold cursor-pointer"
-            >
-              Open Live Customizer
-            </button>
+          {/* Copyright Strip */}
+          <div className="bg-[#0b0d19] border-t border-white/5 py-4 px-6">
+            <p className="text-center text-xs text-slate-500">
+              &copy; The Infinitix Club - SNIST, All Rights Reserved
+            </p>
           </div>
         </footer>
       </div>
 
-      {/*
-        ========================================================================
-        HIDDEN / COLLAPSIBLE "DEV CONTROL PANEL" (Live Customizer)
-        - Floating toggle button in bottom-right corner
-        ========================================================================
-      */}
-      <aside aria-label="Dev controls" className="fixed bottom-6 right-6 z-40">
-        <button
-          onClick={() => setIsCustomizerOpen(true)}
-          className="group relative flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-slate-900/90 hover:bg-slate-900 border border-cyan-400/40 hover:border-cyan-300 text-slate-200 hover:text-white shadow-[0_0_25px_rgba(0,242,254,0.3)] backdrop-blur-xl transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
-          aria-label="Open lighting customizer"
-        >
-          <div className="p-1 rounded-full bg-cyan-400/20 text-cyan-300 group-hover:rotate-45 transition-transform duration-300">
-            <Sliders className="w-3.5 h-3.5" />
-          </div>
-          <span className="text-xs font-semibold tracking-wide whitespace-nowrap">
-            Customize Lighting
-          </span>
-          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-        </button>
-      </aside>
+
 
       {/* Slide-out Customizer Drawer */}
       <DevControlPanel

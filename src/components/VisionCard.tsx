@@ -31,8 +31,9 @@ export const VisionCard: React.FC = () => {
 
           {/* Right Column: Heading & Vision Paragraph */}
           <div className="flex-1 w-full text-center md:text-left">
-            <h2 className="text-2xl sm:text-3xl lg:text-3xl font-bold tracking-tight text-white mb-3.5 flex items-center justify-center md:justify-start">
-              Vision Of Our Club
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-3.5 flex flex-wrap items-center justify-center md:justify-start gap-x-2">
+              <span className="text-white">Vision Of</span>
+              <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-purple-400 bg-clip-text text-transparent">Our Club</span>
             </h2>
             <p className="text-sm sm:text-base lg:text-[15px] text-slate-200 font-normal leading-relaxed text-pretty">
               To empower individuals with cutting-edge data science knowledge and skills, fostering

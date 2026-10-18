@@ -117,8 +117,9 @@ export const Team: React.FC = () => {
         */}
         {whoDrivesMembers.length > 0 && (
           <div>
-            <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight mb-8">
-              Who Drives Our Club
+            <h3 className="text-3xl md:text-5xl font-bold text-white tracking-tight mb-8">
+              <span className="text-white">Who Drives </span>
+              <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-purple-400 bg-clip-text text-transparent">Our Club</span>
             </h3>
 
             <motion.div
@@ -142,8 +143,9 @@ export const Team: React.FC = () => {
         */}
         {advisoryMembers.length > 0 && (
           <div>
-            <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight mb-8">
-              Advisory Board Members
+            <h3 className="text-3xl md:text-5xl font-bold text-white tracking-tight mb-8">
+              <span className="text-white">Advisory Board </span>
+              <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-purple-400 bg-clip-text text-transparent">Members</span>
             </h3>
 
             <motion.div
@@ -167,8 +169,9 @@ export const Team: React.FC = () => {
         */}
         {steeringMembers.length > 0 && (
           <div>
-            <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight mb-8">
-              Steering Body
+            <h3 className="text-3xl md:text-5xl font-bold text-white tracking-tight mb-8">
+              <span className="text-white">Steering </span>
+              <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-purple-400 bg-clip-text text-transparent">Body</span>
             </h3>
 
             <motion.div
@@ -192,8 +195,9 @@ export const Team: React.FC = () => {
         */}
         {(techMembers.length > 0 || nonTechMembers.length > 0) && (
           <div>
-            <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight mb-10">
-              Working Body
+            <h3 className="text-3xl md:text-5xl font-bold text-white tracking-tight mb-10">
+              <span className="text-white">Working </span>
+              <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-purple-400 bg-clip-text text-transparent">Body</span>
             </h3>
 
             <div className="space-y-12">
@@ -202,7 +206,7 @@ export const Team: React.FC = () => {
                 <div>
                   <div className="flex items-center gap-2.5 mb-6">
                     <span className="w-1 h-5 bg-cyan-400 rounded-full" aria-hidden="true" />
-                    <h4 className="text-lg font-bold text-white tracking-wide">
+                    <h4 className="text-lg font-bold text-cyan-200 tracking-wide">
                       Technical Team
                     </h4>
                   </div>
@@ -226,7 +230,7 @@ export const Team: React.FC = () => {
                 <div>
                   <div className="flex items-center gap-2.5 mb-6">
                     <span className="w-1 h-5 bg-purple-400 rounded-full" aria-hidden="true" />
-                    <h4 className="text-lg font-bold text-white tracking-wide">
+                    <h4 className="text-lg font-bold text-cyan-200 tracking-wide">
                       Non-Technical Team
                     </h4>
                   </div>
